@@ -1,0 +1,44 @@
+//panelreg.csv , hotdf.csv , coldf.csv , eastdf.csv , westdf.csv, richdf.csv, poordf.csv
+
+import delimited "G:\SME\Paper_1\panelreg.csv", clear
+xtset kreise_code year
+gen t=year-1999
+gen t2=t^2
+
+gen tasxd1tas= tas*d1tas
+gen precxd1prec =prec*d1prec
+gen precxd1precl1 = prec*d1precl1
+gen prec2=prec^2
+gen tasxd1tasl1 = tas*d1tasl1
+
+// BHM regression equation (1)
+reghdfe d1gvarealpwln tas tas2 prec prec2 i.kreise_code#c.t i.kreise_code#c.t2 , absorb(kreise_code year) vce(cluster kreise_code)
+
+
+// KW regression equation (2)
+reghdfe d1gvarealpwln d1tas d1tasl1 tasxd1tas tasxd1tasl1 tas tas2 d1prec d1precl1 precxd1prec precxd1precl1 prec prec2 i.kreise_code#c.t i.kreise_code#c.t2 , absorb(kreise_code year) vce(cluster kreise_code)
+
+// KW without lagged temperatures but with lagged precipitation
+
+reghdfe d1gvarealpwln d1cappwln tas tas2 d1tas tasxd1tas d1prec d1precl1 precxd1prec precxd1precl1 prec prec2 i.kreise_code#c.t i.kreise_code#c.t2 , absorb(kreise_code year) vce(cluster kreise_code)
+
+// KW without any lagged terms
+
+reghdfe d1gvarealpwln d1cappwln tas tas2 d1tas tasxd1tas prec prec2 d1prec precxd1prec i.kreise_code#c.t i.kreise_code#c.t2 , absorb(kreise_code year) vce(cluster kreise_code)
+
+// Regression with extremes - hotdays, colddays and precipitation concentration
+
+reghdfe d1gvarealpwln d1cappwln hotdayd hotdaydl1 colddayd colddaydl1 precpd precpdl1 i.kreise_code#c.t i.kreise_code#c.t2 , absorb(kreise_code year) vce(cluster kreise_code)
+
+// Combining the KW with lagged precipitation and the extremes estimates
+
+reghdfe d1gvarealpwln tas tas2 d1tas tasxd1tas d1prec d1precl1 precxd1prec precxd1precl1 prec prec2 hotdayd hotdaydl1 colddayd colddaydl1 precpd precpdl1 i.kreise_code#c.t i.kreise_code#c.t2 , absorb(kreise_code year) vce(cluster kreise_code)
+
+// Temperature and temperature shocks, precipitation shocks, base and lags, and extremes and lags, without county trends
+
+reghdfe d1gvarealpwln tas tas2 d1tas tasxd1tas d1prec d1precl1 precxd1prec precxd1precl1 prec prec2 hotdayd hotdaydl1 colddayd colddaydl1 precpd precpdl1  , absorb(kreise_code year) vce(cluster kreise_code)
+
+reghdfe d1gvarealpwln tas tas2 d1tas tasxd1tas d1prec d1precl1 precxd1prec precxd1precl1 prec prec2 hotdayd hotdaydl1 colddayd colddaydl1 precpd precpdl1  , absorb(kreise_code year) vce(cluster state)
+//growth regression 
+
+reghdfe d1gvarealpwln d1tas d1tas2 d1prec d1precpd d1colddayd d1hotdayd ,absorb(kreise_code year) vce (cluster kreise_code)
