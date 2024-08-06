@@ -283,3 +283,44 @@ for kreise in kreiselist:
 p1=pd.merge(p1,outdf,on=['year','Kreise_Code'])
 
 p1.to_csv('D://archive/weather_grid_data/model_df/fulldf/panelreg_c1.csv',index=False)
+
+from numpy import log
+cols=['Kreise_Code','GVAREALPW','tas','tas2','hotday.d','coldday.d','prec','precpd','CAPPW']
+p1=pd.read_csv('D://archive/weather_grid_data/model_df/fulldf/panelreg_c1.csv')
+part1=p1[p1['year']<=2004][cols]
+part1=part1.groupby('Kreise_Code').mean()
+part1['GVAREALPWln']=log(part1['GVAREALPW'])
+part1['CAPPWln']=log(part1['CAPPW'])
+part1['GVAREALPWln0']=part1['GVAREALPWln']
+part2=p1[p1['year']<=2012]
+part2=part2[part2['year']>=2008][cols]
+part2=part2.groupby('Kreise_Code').mean()
+part2['GVAREALPWln']=log(part2['GVAREALPW'])
+part2['CAPPWln']=log(part2['CAPPW'])
+part2['GVAREALPWln0']=part2['GVAREALPWln']
+part3=p1[p1['year']>=2016][cols]
+part3=part3.groupby('Kreise_Code').mean()
+part3['CAPPWln']=log(part2['CAPPW'])
+part3['GVAREALPWln']=log(part3['GVAREALPW'])
+
+cols=['GVAREALPWln','tas','tas2','hotday.d','coldday.d','prec','precpd','CAPPWln']
+diff21=part2[cols]-part1[cols]
+diff21=pd.concat([diff21,part1['GVAREALPWln0']],axis=1)
+diff32=part3[cols]-part2[cols]
+diff32=pd.concat([diff32,part2['GVAREALPWln0']],axis=1)
+diff31=part3[cols]-part1[cols]
+diff31=pd.concat([diff31,part1['GVAREALPWln0']],axis=1)
+
+diffcols=['GVAREALPWln','tas','tas2','hotday.d','coldday.d','prec','precpd','CAPPWln']
+for col in diffcols:
+    diff21=diff21.rename(columns={col:'D.'+col})
+    diff32=diff32.rename(columns={col:'D.'+col})
+    diff31=diff31.rename(columns={col:'D.'+col})
+
+diff21=diff21.reset_index()
+diff31=diff31.reset_index()
+diff32=diff32.resent_index()
+
+diff21.to_csv('D://archive/weather_grid_data/model_df/longdiff/diff21vAug_c1.csv',index=False)
+diff31.to_csv('D://archive/weather_grid_data/model_df/longdiff/diff31vAug_c1.csv',index=False)
+diff32.to_csv('D://archive/weather_grid_data/model_df/longdiff/diff32vAug_c1.csv',index=False)
