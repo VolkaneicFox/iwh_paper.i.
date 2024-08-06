@@ -324,3 +324,30 @@ diff32=diff32.resent_index()
 diff21.to_csv('D://archive/weather_grid_data/model_df/longdiff/diff21vAug_c1.csv',index=False)
 diff31.to_csv('D://archive/weather_grid_data/model_df/longdiff/diff31vAug_c1.csv',index=False)
 diff32.to_csv('D://archive/weather_grid_data/model_df/longdiff/diff32vAug_c1.csv',index=False)
+
+
+endog='D.GVAREALPWln'
+exog=['D.tas','D.tas2','D.hotday.d','D.coldday.d','D.prec','D.precpd','D.CAPPWln','GVAREALPWln0','constant']
+diff21['constant']=1
+diff31['constant']=1
+diff32['constant']=1
+
+import statsmodels.api as sm
+
+x=diff31[exog]
+Y=diff31[endog]
+model=sm.OLS(Y,x,).fit(cov_type='HC3')
+print("model of diff31")
+print(model.summary())
+
+x=diff21[exog]
+Y=diff21[endog]
+model=sm.OLS(Y,x,).fit(cov_type='HC3')
+print("model of diff21")
+print(model.summary())
+
+x=diff32[exog]
+Y=diff32[endog]
+model=sm.OLS(Y,x,).fit(cov_type='HC3')
+print("model of diff32")
+print(model.summary())
